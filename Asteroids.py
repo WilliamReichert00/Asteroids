@@ -235,7 +235,7 @@ class Player(pygame.sprite.Sprite):
         self.y = xy[1]
         self.rect = self.surf.get_rect(center=(self.x, self.y))
 
-    # updates the players's position each frame
+    # updates the player's position each frame
     def update(self):
 
         x = self.x
@@ -412,7 +412,7 @@ class Particle(pygame.sprite.Sprite):
         self.y = xy[1]
         self.rect = self.surf.get_rect(center=(self.x, self.y))
 
-    # updates the players's position each frame
+    # updates the sprite's position each frame
     def update(self):
 
         x = self.x
@@ -757,6 +757,7 @@ def start():
 
         # regulate frame rate
         time.sleep(1 / 60)
+    return None
 
 
 # Default start
