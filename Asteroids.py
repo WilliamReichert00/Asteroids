@@ -103,9 +103,9 @@ class Text(pygame.sprite.Sprite):
     def destroy(self):
         all_sprites.remove(self)
 
-    # draws the asteroid to the screen
-    def draw(self, screen):
-        screen.blit(self.text, self.rect)
+    # draws the asteroid to the surface
+    def draw(self, surface):
+        surface.blit(self.text, self.rect)
 
 
 class Asteroid(pygame.sprite.Sprite):
@@ -171,7 +171,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.rect = self.surf.get_rect(center=self.rect.center)
         self.goto([x, y])
 
-    # when asteroid is destroyed, it splits into two smaller asteroids if it is large enough
+    # when an asteroid is destroyed, it splits into two smaller asteroids if it is large enough
     def destroy(self):
         if hit.get_num_channels() <= 3:
             hit.play()
@@ -186,16 +186,17 @@ class Asteroid(pygame.sprite.Sprite):
         all_asteroids.remove(self)
 
     # remove asteroid without splitting or emitting particles
-    def destroyX(self):
+    def destroyx(self):
         all_sprites.remove(self)
         all_asteroids.remove(self)
 
-    # draws the asteroid to the screen
-    def draw(self, screen):
-        screen.blit(self.surf, self.rect)
+    # draws the asteroid to the surface
+    def draw(self, surface):
+        surface.blit(self.surf, self.rect)
 
     # refreshes class variables
-    def restart(self=0):
+    @staticmethod
+    def restart():
         Asteroid.score = 0
         Asteroid.score_text = Text(size=20, text=("Score: " + str(Asteroid.score)), x=100, y=60)
 
@@ -321,10 +322,10 @@ class Player(pygame.sprite.Sprite):
     def increase_lives(self, num=1):
         self.lives += num
 
-    # draws the player to the screen
-    def draw(self, screen):
+    # draws the player to the surface
+    def draw(self, surface):
         if self.draw_frame:
-            screen.blit(self.surf, self.rect)
+            surface.blit(self.surf, self.rect)
 
 
 class Laser(pygame.sprite.Sprite):
@@ -362,15 +363,15 @@ class Laser(pygame.sprite.Sprite):
         if self.timer >= 90:
             self.destroy()
 
-    # when laser hits the end of the screen or an asteroid, it is destroyed
+    # when a laser hits the end of the screen or an asteroid, it is destroyed
     def destroy(self):
         Particle(color=self.color, x=self.x, y=self.y)
         all_sprites.remove(self)
         all_lasers.remove(self)
 
-    # draws the asteroid to the screen
-    def draw(self, screen):
-        screen.blit(self.surf, self.rect)
+    # draws the asteroid to the surface
+    def draw(self, surface):
+        surface.blit(self.surf, self.rect)
 
 
 class Particle(pygame.sprite.Sprite):
@@ -456,25 +457,12 @@ class Particle(pygame.sprite.Sprite):
     def turn(self, angle):
         self.aVelocity += angle
 
-    # shoots a small projectile in the same direction as the player
-    def shoot(self):
-        if len(all_lasers) < self.bullets:
-            Laser(self.angle, x=self.x, y=self.y)
-
-    # increases the number of bullets available to the player
-    def increase_bullets(self, num=1):
-        self.bullets += num
-
-    # increases the number of lives the player has
-    def increase_lives(self, num=1):
-        self.lives += num
-
-    # draws the player to the screen
-    def draw(self, screen):
-        screen.blit(self.surf, self.rect)
+    # draws the player to the surface
+    def draw(self, surface):
+        surface.blit(self.surf, self.rect)
 
 
-class Album():
+class Album:
     def __init__(self, songs):
         self.song_list = songs
         self.number_of_songs = len(songs)
@@ -483,6 +471,7 @@ class Album():
     def is_playing(self):
         if self.song_list[self.current_song].get_num_channels() >= 1:
             return True
+        return None
 
     def next(self):
         self.current_song = self.current_song + 1 % self.number_of_songs
@@ -494,7 +483,7 @@ class Album():
         self.current_song = random.randint(0,self.number_of_songs)
 
     def play(self, song_id=-1):
-        if song_id > -1 and song_id <= self.number_of_songs:
+        if -1 < song_id <= self.number_of_songs:
             self.song_list[song_id].play()
             self.current_song = song_id
         else:
@@ -506,7 +495,7 @@ def restart():
     for player in all_players:
         player.destroy()
     for asteroid in all_asteroids:
-        asteroid.destroyX()
+        asteroid.destroyx()
     for laser in all_lasers:
         laser.destroy()
     for sprite in all_sprites:
@@ -519,8 +508,8 @@ def restart():
 
 def start():
     # keypress variables
-    wasdControls = [False, False, False, False]  # 0 - w, 1 - s, 2 - a, 3 - d
-    arrowControls = [False, False, False, False]  # 0 - up, 1 - down, 2 - left, 3 - right
+    wasd_controls = [False, False, False, False]  # 0 - w, 1 - s, 2 - a, 3 - d
+    arrow_controls = [False, False, False, False]  # 0 - up, 1 - down, 2 - left, 3 - right
 
     # game variables
     level = 1
@@ -631,68 +620,68 @@ def start():
                 if event.key == K_ESCAPE:
                     loop = False
                 elif event.key == K_UP:
-                    arrowControls[0] = True
+                    arrow_controls[0] = True
                 elif event.key == K_DOWN:
-                    arrowControls[1] = True
+                    arrow_controls[1] = True
                 elif event.key == K_LEFT:
-                    arrowControls[2] = True
+                    arrow_controls[2] = True
                 elif event.key == K_RIGHT:
-                    arrowControls[3] = True
+                    arrow_controls[3] = True
                 elif event.key == K_w:
-                    wasdControls[0] = True
+                    wasd_controls[0] = True
                 elif event.key == K_s:
-                    wasdControls[1] = True
+                    wasd_controls[1] = True
                 elif event.key == K_a:
-                    wasdControls[2] = True
+                    wasd_controls[2] = True
                 elif event.key == K_d:
-                    wasdControls[3] = True
+                    wasd_controls[3] = True
                 elif event.key == K_SPACE:
                     paused = True
                     pause_text = Text(50, "PAUSED")
                     while paused:
-                        for event in pygame.event.get():
-                            if event.type == KEYDOWN:
-                                if event.key == K_ESCAPE:
+                        for new_event in pygame.event.get():
+                            if new_event.type == KEYDOWN:
+                                if new_event.key == K_ESCAPE:
                                     loop = False
-                                elif event.key == K_SPACE:
+                                elif new_event.key == K_SPACE:
                                     paused = False
                                     pause_text.destroy()
-                                elif event.key == K_r:
+                                elif new_event.key == K_r:
                                     return True
-                                elif event.key == K_UP:
-                                    arrowControls[0] = True
-                                elif event.key == K_DOWN:
-                                    arrowControls[1] = True
-                                elif event.key == K_LEFT:
-                                    arrowControls[2] = True
-                                elif event.key == K_RIGHT:
-                                    arrowControls[3] = True
-                                elif event.key == K_w:
-                                    wasdControls[0] = True
-                                elif event.key == K_s:
-                                    wasdControls[1] = True
-                                elif event.key == K_a:
-                                    wasdControls[2] = True
-                                elif event.key == K_d:
-                                    wasdControls[3] = True
+                                elif new_event.key == K_UP:
+                                    arrow_controls[0] = True
+                                elif new_event.key == K_DOWN:
+                                    arrow_controls[1] = True
+                                elif new_event.key == K_LEFT:
+                                    arrow_controls[2] = True
+                                elif new_event.key == K_RIGHT:
+                                    arrow_controls[3] = True
+                                elif new_event.key == K_w:
+                                    wasd_controls[0] = True
+                                elif new_event.key == K_s:
+                                    wasd_controls[1] = True
+                                elif new_event.key == K_a:
+                                    wasd_controls[2] = True
+                                elif new_event.key == K_d:
+                                    wasd_controls[3] = True
 
-                            if event.type == KEYUP:
-                                if event.key == K_UP:
-                                    arrowControls[0] = False
-                                elif event.key == K_DOWN:
-                                    arrowControls[1] = False
-                                elif event.key == K_LEFT:
-                                    arrowControls[2] = False
-                                elif event.key == K_RIGHT:
-                                    arrowControls[3] = False
-                                elif event.key == K_w:
-                                    wasdControls[0] = False
-                                elif event.key == K_s:
-                                    wasdControls[1] = False
-                                elif event.key == K_a:
-                                    wasdControls[2] = False
-                                elif event.key == K_d:
-                                    wasdControls[3] = False
+                            if new_event.type == KEYUP:
+                                if new_event.key == K_UP:
+                                    arrow_controls[0] = False
+                                elif new_event.key == K_DOWN:
+                                    arrow_controls[1] = False
+                                elif new_event.key == K_LEFT:
+                                    arrow_controls[2] = False
+                                elif new_event.key == K_RIGHT:
+                                    arrow_controls[3] = False
+                                elif new_event.key == K_w:
+                                    wasd_controls[0] = False
+                                elif new_event.key == K_s:
+                                    wasd_controls[1] = False
+                                elif new_event.key == K_a:
+                                    wasd_controls[2] = False
+                                elif new_event.key == K_d:
+                                    wasd_controls[3] = False
 
                         pause_text.draw(screen)
                         # apply screen changes
@@ -704,21 +693,21 @@ def start():
 
             if event.type == KEYUP:
                 if event.key == K_UP:
-                    arrowControls[0] = False
+                    arrow_controls[0] = False
                 elif event.key == K_DOWN:
-                    arrowControls[1] = False
+                    arrow_controls[1] = False
                 elif event.key == K_LEFT:
-                    arrowControls[2] = False
+                    arrow_controls[2] = False
                 elif event.key == K_RIGHT:
-                    arrowControls[3] = False
+                    arrow_controls[3] = False
                 elif event.key == K_w:
-                    wasdControls[0] = False
+                    wasd_controls[0] = False
                 elif event.key == K_s:
-                    wasdControls[1] = False
+                    wasd_controls[1] = False
                 elif event.key == K_a:
-                    wasdControls[2] = False
+                    wasd_controls[2] = False
                 elif event.key == K_d:
-                    wasdControls[3] = False
+                    wasd_controls[3] = False
 
             if event.type == MOUSEBUTTONDOWN:
                 for asteroid in all_asteroids:
@@ -732,24 +721,24 @@ def start():
                             asteroid.destroy()
                             break
 
-        if arrowControls[0]:
+        if arrow_controls[0]:
             player.forward()
-        if arrowControls[1]:
+        if arrow_controls[1]:
             player.shoot()
-        if arrowControls[2]:
+        if arrow_controls[2]:
             player.turn(2)
-        if arrowControls[3]:
+        if arrow_controls[3]:
             player.turn(-2)
 
-        # Level increases when all asteroids are destroyed
+        # The Level increases when all asteroids are destroyed
         if Asteroid.score >= 32 * 1.75 ** level:
             level += 1
             level_text.update_text("Level: " + str(level))
 
             # player upgrades at certain level milestones
-            if (level % 2 == 0):
+            if level % 2 == 0:
                 player.increase_bullets()
-            if (level % 8 == 0):
+            if level % 8 == 0:
                 player.increase_lives()
 
         # apply screen changes
